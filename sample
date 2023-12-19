@@ -1,0 +1,648 @@
+######### INTRO TO DICTIONARIES #########
+
+#dictionary stores key-value pairs
+#The equiv of an associative array/hash table
+emails = {
+    "Caleb":"caleb@email.com", 
+    "Gal":"g@example.com" 
+}
+
+print(emails)
+#in this case, the key is the name, email is the value. 
+#Data type doesn't matter at all for the value.
+#Key must be a hashable --> What does this mean?
+#Classes have a function __hash__ invoked when used as the key
+print(hash("hello")) 
+
+#I'm not sure of exact internals on how the hash is used, but imagine it like so:
+#You have an area of memory with 8 spots, and you need to store the value at some spot...
+print(hash("hello") % 8) 
+
+#Almost always immutable type (should be, anyway)
+#a tuple will work, list will not. a number will work
+
+#Why use a hashtable? Extremely fast to add or look up data
+#O(1) --> constant time. More elements does not mean slower unlike a sort or something
+#https://en.wikipedia.org/wiki/Hash_table
+#Hashtables often used for memoization
+
+#Next up we gonna talk about retrieving data from a dictionary
+
+
+######### RETRIEVE DATA FROM DICTIONARY ##########
+
+
+print(list(emails))
+print(sorted(emails))
+#print(emails[0]) # NOPE!
+print(emails["Caleb"])
+
+#Since data is not nicely sequenced
+#we may want to check before we try grabbing stuff
+
+if("Caleb" in emails):
+    print("Emailing", emails["Caleb"])
+
+#This may seem bad because we first check to see if its in
+#Then we do another line to get the value
+#but this is different than a list where we iterate to find the element
+#The key is goes through hash to calculate index. Either there or not
+#This is O(1)
+
+#You may still not like the casing and in that situation there is a method
+
+print(emails.get("Ryan")) #Returns none if not found
+print(emails.get("Ryan", "Not found")) #optional return arg if not found
+
+
+######### ADD DATA TO DICTIONARY #########
+
+
+#How to add data (3 ways here):
+#indexing
+emails["josh"] = "josh@j.com"
+print(emails)
+
+#update function
+emails.update( {"josh": "evennewer@email.com"})
+print(emails)
+
+#Weird variation
+emails.update(josh = "new@email.com")
+print(emails)
+
+#Key must be hashable
+emails[5] = "test"
+emails[(1, 2)] = "yep"
+#emails[[5, 3]] = "nope" #list is not hashable (mainly cuz mutable)
+
+
+######### LOOPING THROUGH KEYS #########
+
+
+#dictionary is an iterable (implements __iter__)
+
+emails = {
+    "Caleb":"caleb@email.com", 
+    "Gal":"g@example.com",
+    "Ted": "talk@gmail.com"
+}
+
+#k is a variable but k by convention for key
+for k in emails:
+    print(k)
+
+#You can use the key to get the element 
+#Not ideal.
+#One reason being the key has to be hashed to get the value associated with it.
+#(but will show better way in next section)
+for k in emails:
+    print("index", k, "is", emails[k])
+
+
+######### LOOPING THROUGH KEY-VALUE PAIRS #########
+
+
+#In the prev section we used the index with [].
+#Although it works, you can do this:
+
+for k, elem in emails.items():
+    print(k, elem)
+
+#Each iteration k will be the key and elem will be the item found at this key.
+
+#As an example of what a hashtable can be used for, you can keep track of occurances:
+
+conjunctions = {"but": 0, "or": 0, "so": 0, "and": 0, "yet": 0, "for": 0, "nor": 0} #fanboys
+
+completely_original_poem = """I still hear your voice when you sleep next to me
+I still feel your touch in my dreams
+Forgive me my weakness, but I don't know why
+Without you it's hard to survive
+'Cause every time we touch, I get this feeling
+And every time we kiss I swear I could fly
+Can't you feel my heart beat fast, I want this to last
+Need you by my side"""
+
+words = completely_original_poem.split()
+
+for word in words:
+    if str.lower(word) in conjunctions:
+        conjunctions[str.lower(word)] += 1
+
+print(conjunctions)
+
+#This could easily be wrapped in a function to take a msg and words to look for, returning a dict
+#concept can be used to analyze documents to quantify how vulgar they are, search for phrases, etc
+#dictionaries can be used to keep track of values that are hard to calculate (memoization)
+
+
+######### SETS EXPLAINED #########
+
+
+#Sets are similar to dictionaries in that the data is hashed and it is unordered.
+#Sets are similar to lists in that they just contain the data and not a key-value pair
+#Sets are different than lists in that you cannot have duplicates
+
+stuff = {"sword", "rubber duck", "sice a pizza"}
+print("sword" in stuff)
+print(stuff)
+stuff.add("sword")
+print(stuff)
+#Notice only one occurance of sword even though already added
+
+#How is a set different than a dictionary?
+#For a set, each element is only one piece of data
+#for a dictionary, it is a key-value pair. 
+
+#Behind the scenes, they both use hashing. The hashing is used to determine where to store the data.
+#For dictionaries, the KEY is hashed
+#for sets, we do not have a key, so the data itself is hashed.
+#This means we cannot store something in sets that is not hashable.
+
+#stuff.add(["trying to add a list"])
+
+#It's important to understand the purpose of a set...
+#Easily check if element in set
+#such as to easily check to see if something has been tagged
+#To do various set operations (coming soon)
+
+#An example would be to see if a word is ever used in a phrase. Not counted (that wold be a dictionary)
+
+conjunctions = {"but", "or", "so", "and", "yet", "for", "nor"} #fanboys
+seen = set() #THERE'S NOT AN EMPTY SET LITERAL!! #learn something new every day
+completely_original_poem = """I still hear your voice when you sleep next to me
+I still feel your touch in my dreams
+Forgive me my weakness, but I don't know why
+Without you it's hard to survive
+'Cause every time we touch, I get this feeling
+And every time we kiss I swear I could fly
+Can't you feel my heart beat fast, I want this to last
+Need you by my side"""
+
+words = completely_original_poem.split()
+
+for word in words:
+    if str.lower(word) in conjunctions:
+        seen.add(str.lower(word))
+
+print(seen)
+
+
+######### REMOVE DUPLICATES FROM LIST / CREATE SET FROM LIST ##########
+
+#You can remove duplicate elements from a list by converting it to a set and back. 
+
+colors = ["red", "red", "green", "green", "blue", "blue", "blue"]
+
+print(id(colors), colors)
+
+colors[:] = list(set(colors))
+
+print(id(colors), colors)
+
+
+#Earlier on in our life I showed some code to count each type of element in a list. 
+
+colors = ["red", "red", "green", "green", "blue", "blue", "blue"]
+
+counts = [[colors.count(item), item] for item in set(colors)]
+
+print(counts)
+
+#This works because is iterates through the set {"red", "green", "blue"} counting each in colors
+
+
+######### UNION AND INTERSECTION #########
+
+my_fav = {"red", "green", "black", "blue", "purple"}
+her_fav= {"blue", "orange", "purple", "green"}
+
+#union
+all_favs = my_fav | her_fav
+print(all_favs) #no repetition
+#You may see + to combine lists, in which there are repeats.
+#But we are not working with lists...so i'll try to focus here.
+
+#intersection (elements shared between both)
+wedding_colors = my_fav & her_fav
+print(wedding_colors)
+#this is like the inside section of a venn diagram
+
+#There are also method versions:
+all_favs = my_fav.union(her_fav)
+print(all_favs)
+
+wedding_colors = my_fav.intersection(her_fav)
+print(wedding_colors)
+
+
+######### DIFFERENCE AND SYMMETRIC DIFFERENCE ######### 
+
+
+my_fav = {"red", "green", "black", "blue", "purple"}
+her_fav= {"blue", "orange", "purple", "green"}
+
+#Difference
+only_my_colors = my_fav - her_fav
+print(only_my_colors) #elements in left getting rid of all in right. 
+#Could go other way too:
+only_her_colors = her_fav - my_fav
+print(only_her_colors)
+
+#symmetric difference is like if you took colors only I liked union with colors only she liked and put em together:
+
+symmetric = my_fav ^ her_fav
+print(symmetric)
+
+#This is like:
+symmetric = only_my_colors | only_her_colors
+print(symmetric)
+
+#like union and intersection, there are method versions that return. --> .difference and .symmetric_difference
+
+
+########## Create a Class and __init__ ##########
+
+
+#This section is designed to be a simple introduction to object oriented programming
+#We are in no way covering everything... 
+#Probably will do OOP or intermediate Python series dedicated to this stuff
+
+class Book():
+    pass
+
+book = Book()
+print(book)
+
+#When we say Book() we are instantiating a new object
+#This object iws assigned to the book variable
+#Printing it gives us the type and memory location
+#You can also get the type:
+
+print(type(book))
+
+#We can check type like so:
+
+if isinstance(book, Book):
+    print("It is indeed book. Read it")
+else:
+    print("nope, not a book")
+
+#We can use the class to make numerous books:
+book2 = Book()
+#Consider the class as the cookie cutter to make numerous cookies.
+
+#We can add attributes to any object dynamically like so:
+book.title = "Goodnight Moon"
+print(book.title)
+
+#This is cool and all but every book has a title, so we can make it part of the structure
+#This requires a bit more syntax...
+#also notice that you can override any class as we go.
+class Book():
+    def __init__(self, title):
+        self.title = title
+
+#consider this the constructor, or the function that is invoked when we create a book.
+#self refers to the book being created and we don't have to worry about passing that, it's implicit
+#Title is passed in as an argument, and assigned to self.title (the title of the book)
+#We will explore this in more detail in a video soon. 
+
+#We then pass a title to the Book as we create it:
+book = Book("Goodnight Moon Again")
+book2 = Book("Are You My Mother")
+print(book.title)
+print(book2.title)
+
+#This will now fail as title is required :)
+#book3 = Book()  
+
+#If you want the title to be optional you can give it a default (either a value or None):
+
+class Book():
+    def __init__(self, title=None):
+        self.title = title
+
+book = Book()
+print(book.title) #Still exists just no value.
+
+#This fails as .test doesn't exist.
+#print(book.test)
+
+#Next up we are going to create methods in our class. 
+
+
+########## Methods ##########
+
+
+#A method is just a function on an object.
+#We can define any functions to be attached to our objects by putting em in our class
+#We just have to have the implicit parameter self
+
+class Book():
+    def __init__(self, title, pages):
+        self.title = title
+        self.pages = pages
+    
+    def log(self):
+        print(f"{self.title} is {self.pages} pages long")
+
+    def is_short(self):
+        if self.pages < 100:
+            return true
+
+book = Book("Are You My Mother?", 72)
+book.log() #no need to pass anything to self parameter. 
+
+#A note on __init__
+#__init__ is also a method, but it's special in that it is invoked automatically
+#When we create an object.
+#There are a lot of methods with a similar naming structure we are going to see. 
+#__eq__, __hash__, __str__, etc. 
+
+if book.is_short():
+    #do something
+    print("read book")
+else:
+    print("Aint got time for that")
+
+#Next up I want to explain this self parameter we've been seeing
+
+#Without methods, we would have to create functions like this:
+
+def book_is_short(book):
+    if book.pages < 100:
+        return true
+
+if book_is_short(book):
+    #do something
+    print("read book")
+else:
+    print("Aint got time for that")
+
+#Which would work but not ideal as we'd easily be overwhelemed with so many functions
+#And no organization. It's ideally attached to the object as it's related to the object.
+
+
+########## Class Level Variables ##########
+
+
+#We're going to talk about class variables.
+#Coming from another language, this would be the closest thing to "static" members
+#First, we need to understand self.
+
+#self refers to the object things are being invoked on,
+#When we create an object. __init__ assigns stuff to self
+#That allows each object to have attributes.
+
+#Any time we create a method, we have self as a parameter.
+#This means the method is attached to each object.
+
+#if we leave off self, we are creating it at the class level, which is shared for all objects
+
+
+class Book():
+    favs = [] #class
+
+    def __init__(self, title, pages):
+        self.title = title
+        self.pages = pages
+    
+    def log(self):
+        print(f"{self.title} is {self.pages} pages long")
+
+    def is_short(self):
+        if self.pages < 100:
+            return true
+
+
+book = Book("Are You My Mother?", 72)
+book2 = Book("The Digging-est Dog", 72)
+
+Book.favs.append(book)
+Book.favs.append(book2)
+
+print(Book.favs) #Favs is related to books, but not tied to one individual book
+#We use self as a parameter if it's unique to each object :)
+
+
+########## __str__ ##########
+########## __eq__ ##########
+########## __hash__ and Collections ##########
+
+
+#To save save space we are combing the code for all three of these sections.
+
+class Book():
+    favs = [] #class
+
+    def __init__(self, title, pages):
+        self.title = title
+        self.pages = pages
+
+    def is_short(self):
+        if self.pages < 100:
+            return true
+
+    #What happens when you pass object to print?
+    def __str__(self):
+        return f"{self.title}, {self.pages} pages long"
+
+    #What happens when you use ==?
+    def __eq__(self, other):
+        if(self.title == other.title and self.pages == other.pages):
+            return True
+    
+    #It's approriate to give something for __hash__ when you override __eq__
+    # #This is the recommended way if mutable (like it is here):
+    __hash__ = None
+
+    #If should immutable, you could do something like this. 
+    #This replaces __hash__ = None
+    def __hash__(self):
+        return hash(self.title) ^ hash(self.pages) #xor with hash of attributes
+        #from Mastering Object-Oriented Python
+
+book = Book("Are You My Mother", 72)
+print(book)
+equal_book = Book("Are You My Mother", 72)
+print("Are they considered equal?", book == equal_book) #yep
+print("Are they the same object?", book is equal_book) #nope
+book2 = Book("The Digging-est Dog", 72)
+
+print(hash(book), hash(book2))
+
+print("old hash", hash(book))
+book.title = "new"
+print("new hash", hash(book)) #BAD!!! 
+#Hashes shouldn't change
+
+class Book():
+    favs = [] #class
+
+    def __init__(self, title, pages):
+        self.title = title
+        self.pages = pages
+
+    def is_short(self):
+        if self.pages < 100:
+            return true
+
+    #What happens when you pass object to print?
+    def __str__(self):
+        return f"{self.title}, {self.pages} pages long"
+
+    #What happens when you use ==?
+    def __eq__(self, other):
+        if(self.title == other.title and self.pages == other.pages):
+            return True
+    
+    #It's approriate to give something for __hash__ when you override __eq__
+    # #This is the recommended way if mutable (like it is here):
+    __hash__ = None
+
+
+########## Passing by Object Reference ##########
+
+
+book = Book("Where Is My Mother?", 100)
+print(book)
+
+def modify(book): 
+    book.title = "Changed noob"
+
+modify(book)
+print(book)
+
+#What is we print id to follow? 
+
+def modify(book): 
+    print(id(book))
+    book.title = "Changed noob"
+    print(id(book))
+
+print(id(book))
+modify(book)
+print(id(book))
+
+#We get the same number for everything
+
+book = Book("Are You My Mother?", 100)
+print("let's reassign")
+def modify(book): 
+    print(id(book))
+    book = Book("Changed noob", 100)
+    print(id(book)) #This is a different id. 
+    #The original is unchanged. Reassigning
+
+print(id(book))
+modify(book)
+print(id(book))
+print(book) #Stayed the same!
+
+
+########## Reading from a file ##########
+
+file = open("input.txt", "a") #append. Creates if not there
+file = open("input.txt", "w") #overwrites
+#file = open("input.txt", "r+") #Read and write. Throws exception if not there
+#not as easy to work with on r/w in my oppinion
+
+#\t to sep title from page count
+file.write("Are You My Mother?\t72\n")
+file.write("The Digging-est Dog\t72")
+file.close() #close when done
+
+file = open("input.txt", "r")
+
+#for line in file:
+#    print(line, end="") #end="" as \n is kept in line
+#print()
+
+#Numerous ways to read into list. Here is one. 
+data = file.read().split('\n')
+print(data)
+#https://stackoverflow.com/questions/3277503/how-to-read-a-file-line-by-line-into-a-list
+
+file.close()
+
+#Each line is title\tpages so we split it. 
+book1_data = data[0].split('\t')
+book = Book(book1_data[0], book1_data[1])
+
+book2_data = data[1].split('\t')
+book2 = Book(book2_data[0], book2_data[1])
+
+print(book)
+print(book2)
+
+
+########## Intro to Exception handling ##########
+
+
+#When working with files (or doing anything in programming),
+#Exceptions can be thrown
+
+#file = open("doesntexist.csv", "r") #get wrecked son
+
+try:
+    file = open("doesntexist.csv", "r")
+except Exception as e:
+    print(type(e))
+    print(e)
+
+try:
+    file = open("input.txt", "r") #Make sure it exists
+    data = int(file.read()) #This should fail
+except FileNotFoundError as e: #subclass of OSError
+    print("This file is not found")
+except OSError as e:
+    print("Couldn't open file")
+except PermissionError as e:
+    print("file is locked")
+except ValueError as e:
+    print("Cannot parse data. Check file") 
+except Exception as e:
+    print(type(e))
+    print(e)
+finally:
+    file.close()
+    print("Always runs")
+
+
+########## with keyword ##########
+
+#shorthand for opening file and automatically closed outside indent
+with open("input.txt", "r") as file: #Make sure it exists
+    
+    try:
+        int(file.read())
+    except: #example of using thin except here
+        print("parse error...etc...")
+        #do whatever
+
+print(file.closed) #closed
+
+#opening can still throw an exception...Maybe do it like so:
+try:
+    with open("no", "r") as file: 
+        int(file.read())
+except Exception as e:
+    print(e)
+
+#I think this could be written like so but may require another try inside else:   
+try:
+    file = open('nope')
+except OSError as e:
+    print(e)
+else:
+    with file:
+        #try:
+            file.read()
+        #except Exception as e:
+        #    print(e)
+
+#https://stackoverflow.com/questions/40640956/python-with-open-except-filenotfounderror/40641103
+#https://stackoverflow.com/questions/28633555/how-to-handle-filenotfounderror-when-try-except-ioerror-does-not-catch-it
+
